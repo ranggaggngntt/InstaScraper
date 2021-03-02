@@ -24,7 +24,7 @@ def main():
     with smart_run(session):
         followers = session.grab_followers(username=target, amount='full', live_match=True)
 
-    scrape = Scrape.Scrape(username, target, thread_count)
+    scrape = Scrape.Scrape(followers, target, thread_count)
     scrape.run()
 
 if __name__ == '__main__':
