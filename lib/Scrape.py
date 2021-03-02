@@ -49,7 +49,7 @@ class Scrape:
         current_path = os.getcwd()
         output_path = '{}/result/'.format(current_path)
 
-        file_name = '{}.xlsx'.format(self.target)
+        file_name = '{}{}.xlsx'.format(output_path,self.target)
         workbook = xlsxwriter.Workbook(file_name)
         sheet = workbook.add_worksheet()
 
