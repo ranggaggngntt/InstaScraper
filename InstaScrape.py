@@ -1,31 +1,31 @@
-import xlsxwriter
-import instaloader
+from time import sleep
+from instapy import InstaPy
+from instapy.util import smart_run
+from lib import Scrape
+import argparse
 
-def InstaScrape(username, password, target):
-    L = instaloader.Instaloader()
-    L.login(username, password)
+def main():
+    thread_count = None
 
-    profile = instaloader.Profile.from_username(L.context, target)
-    print("Fetching followers of profile {}.".format(profile.username))
-    followers = set(profile.get_followers())
+    parser = argparse.ArgumentParser(description="Input Thread")
+    parser.add_argument('-tc', metavar='--thread', type=int, help='thread number')
+    parser.add_argument('-u', metavar='--username', type=str, help='Username Instagram')
+    parser.add_argument('-p', metavar='--password', type=str, help='Password Instagram')
+    parser.add_argument('-t', metavar='--target', type=str, help='Password Instagram')
+    args = parser.parse_args()
+    thread_count = args.tc
+    username = args.u
+    password = args.p
+    target = args.t
 
-    workbook = xlsxwriter.Workbook(target + '.xlsx')
-    sheet = workbook.add_worksheet()
+    session = InstaPy(username=username,
+                  password=password,
+                  headless_browser=True)
+    with smart_run(session):
+        followers = session.grab_followers(username=target, amount='full', live_match=True)
 
-    sheet.write('A1', 'Username')
-    sheet.write('B1', 'Post')
-    sheet.write('C1', 'Following')
-    row = 1
-    for follower in followers:
-        sheet.write(row, 0, follower.username)
-        sheet.write(row, 1, str(follower.mediacount))
-        sheet.write(row, 2, str(follower.followees))
-        row += 1
-    workbook.close()
+    scrape = Scrape.Scrape(username, target, thread_count)
+    scrape.run()
 
 if __name__ == '__main__':
-    username = input('Username: ')
-    password = input('Password: ')
-    target = input('Target Scrape (username): ')
-
-    InstaScrape(username, password, target)
+    main()
